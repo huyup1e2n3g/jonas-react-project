@@ -29,11 +29,12 @@ export default function App() {
   }
 
   function handleClearList() {
-    const confirm = window.confirm(
-      "Are you sure you want to delete all items?"
-    );
-
-    if (confirm) setItems([]);
+    if (items.length > 0) {
+      const confirm = window.confirm(
+        "Are you sure you want to delete all items?"
+      );
+      if (confirm) setItems([]);
+    }
   }
 
   return (
