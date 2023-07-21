@@ -2,7 +2,7 @@
 
 1. Pizza Menu (Components, props, JSX) ✅
 2. Travel List (useState and state management) ✅
-3. Eat-n-split (Practice project)
+3. Eat-n-split (Practice project) ✅
 4. usePopcorn (useEffect, data fetching, custom hooks)
 5. Classy weather (Class components)
 6. Quiz App (useReducer)
