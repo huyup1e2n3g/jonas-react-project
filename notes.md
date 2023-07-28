@@ -1,8 +1,12 @@
+# pizza-menu
+
 ## Create React App
 
 ```shell
 npx create-react-app@5 pizza-menu
 ```
+
+# Eat-n-split
 
 ## Random Avatar
 
@@ -104,4 +108,137 @@ eat-n-split 项目中有一个问题，当输入框中输入非数字时，会�
     }
   }}
 ></input>
+```
+
+## KEY PROP
+
+eat-n-split 项目中，选择不同的朋友时，会保留已输入的内容，为了解决这个问题，可以用 `key` 参数，使其变为独一无二的元素。
+
+```js
+{
+  selectedFriend && (
+    <FormSplitBill
+      selectedFriend={selectedFriend}
+      onSplitBill={handleSplitBill}
+      key={selectedFriend.id}
+    />
+  );
+}
+```
+
+# usePopcorn
+
+## OMDb API
+
+[http://www.omdbapi.com/](http://www.omdbapi.com/)
+
+## 滚动条问题
+
+滚动条出现白色边框问题，重试多次后自动修复了。
+
+```css
+overflow: auto;
+overflow: scroll;
+```
+
+## Cleaning Up Data Fetching
+
+当输入 query 时，浏览器会不断发出请求，如果其中一个请求时间过长会导致得到的结果不是最终所输入的结果，为了解决这个问题，可以用 AbortController，它是浏览器的 API。
+
+这样当有新的 query 请求时，前面的请求会自动中断。
+
+```js
+useEffect(
+  function () {
+    const controller = new AbortController();
+
+    async function fetchMovies() {
+      try {
+        // ...
+        const res = await fetch(
+          `http://www.omdbapi.com/?apikey=${KEY}&s=${query}`,
+          { signal: controller.signal }
+        );
+        // ...
+      } catch (err) {
+        if (err.name !== "AbortError") {
+          console.log(err.message);
+          setError(err.message);
+        }
+      } finally {
+        // ...
+      }
+    }
+
+    return function () {
+      controller.abort();
+    };
+  },
+  [query]
+);
+```
+
+这段代码是使用 React 的 useEffect 钩子函数来执行副作用操作。在这个例子中，副作用操作是在组件挂载或更新时异步获取电影数据。
+
+首先，我们创建了一个新的 AbortController 实例，用于在需要时中止异步请求。然后，我们定义了一个名为 fetchMovies 的异步函数，用于实际获取电影数据。在 try 块中，我们可以执行实际的数据获取操作。在 catch 块中，我们处理可能的错误。如果错误的名称不是 "AbortError"，我们将错误消息记录到控制台并设置组件的错误状态。在 finally 块中，我们可以执行一些清理操作，例如隐藏加载指示器。
+
+最后，我们返回一个函数，该函数在组件卸载时会被调用。在这个函数中，我们调用了 AbortController 实例的 abort 方法，以中止之前发起的异步请求。这样做是为了确保在组件卸载时取消未完成的请求，以避免可能的内存泄漏或错误。
+
+在 useEffect 的第二个参数中，我们传递了一个依赖数组 [query]。这意味着只有当 query 发生变化时，才会重新运行副作用操作。这可以帮助我们避免不必要的重复请求，只在 query 发生变化时才获取新的电影数据。
+
+总之，这段代码使用 useEffect 和异步函数来获取电影数据，并在组件卸载时中止未完成的请求，以确保代码的正确性和性能。
+
+## Key Press Events
+
+实现在电影详情页面按下 Escape 键关闭该页面的功能。
+
+在 MovieDetails 组建中添加新的 useEffect ：
+
+```js
+useEffect(
+  function () {
+    function callback(e) {
+      if (e.code === "Escape") {
+        onCloseMovie();
+      }
+    }
+
+    document.addEventListener("keydown", callback);
+
+    return function () {
+      document.removeEventListener("keydown", callback);
+    };
+  },
+  [onCloseMovie]
+);
+```
+
+在这个代码中，useEffect 钩子函数来执行副作用操作，在组件挂载或更新时添加一个事件监听器，以便在按下 Escape 键时触发 onCloseMovie 函数。
+
+首先，我们定义了一个名为 callback 的函数，它接受一个事件对象作为参数。在 callback 函数中，我们检查事件对象的 code 属性是否等于 "Escape"，如果是，则调用 onCloseMovie 函数。
+
+然后，我们使用 document.addEventListener 方法将 callback 函数添加为 keydown 事件的监听器。这意味着当用户按下键盘上的任意键时，都会触发 callback 函数。
+
+最后，我们返回一个函数，该函数在组件卸载时会被调用。在这个函数中，我们使用 document.removeEventListener 方法将之前添加的事件监听器移除，以避免在组件卸载后仍然触发回调函数。
+
+在 useEffect 的第二个参数中，我们传递了一个依赖数组 [onCloseMovie]。这意味着只有当 onCloseMovie 发生变化时，才会重新运行副作用操作。这可以帮助我们避免不必要的重复添加和移除事件监听器。
+
+总之，这段代码使用 useEffect 和事件监听器来在按下 Escape 键时触发 onCloseMovie 函数，并在组件卸载时移除事件监听器，以确保代码的正确性和性能。
+
+## Initializing State With a Callback (Lazy Initial State/Local Storage)
+
+```js
+export default function App() {
+  const [watched, setWatched] = useState(function () {
+    const storedValue = localStorage.getItem("watched");
+    return JSON.parse(storedValue);
+  });
+
+  useEffect(
+    function () {
+      localStorage.setItem("watched", JSON.stringify(watched));
+    },
+    [watched]
+  );
+}
 ```
