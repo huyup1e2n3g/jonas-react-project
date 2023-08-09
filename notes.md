@@ -242,3 +242,54 @@ export default function App() {
   );
 }
 ```
+
+# react-quiz
+
+## Loading Questions from a Fake API
+
+```shell
+npm i json-server
+```
+
+```json
+// package.json
+"scripts": {
+    // ...
+    "server": "json-server --watch data/questions.json --port 9000"
+  },
+
+```
+
+```shell
+npm run server
+```
+
+localhost:9000/questions
+
+## tick 状态下的 highscore 问题
+
+```js
+case "tick":
+  return {
+    ...state,
+    secondsRemaining: state.secondsRemaining - 1,
+    status: state.secondsRemaining === 0 ? "finished" : state.status,
+  };
+```
+
+在 "tick" 状态下，剩余时间为 0 后，状态将更新为 "finished"，但是 highscore 并没有更新，导致界面转到 FinishScreen 后，不会正确显示 highscore。
+
+目前的解决方法是在 "tick" 状态下新增 highscore :
+
+```js
+case "tick":
+  return {
+    ...state,
+    secondsRemaining: state.secondsRemaining - 1,
+    status: state.secondsRemaining === 0 ? "finished" : state.status,
+    highscore:
+      state.points > state.highscore ? state.points : state.highscore,
+  };
+```
+
+但应该有更好的解决方法，如何让 `state.secondsRemaining === 0` 时，dispatch 到 "finish" 下。
